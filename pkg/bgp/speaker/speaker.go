@@ -28,8 +28,9 @@ import (
 // compile time check, Speaker must be a subscriber.Node
 var _ subscriber.Node = (*Speaker)(nil)
 
-// New creates a new MetalLB BGP speaker controller.
-func New() *Speaker {
+// New creates a new MetalLB BGP speaker controller. Options are provided to
+// specify what the Speaker should announce via BGP.
+func New(opts Opts) *Speaker {
 	logger := &bgplog.Logger{Entry: log}
 	client := bgpk8s.New(logger.Logger)
 
@@ -57,8 +58,13 @@ func New() *Speaker {
 	spkr := &Speaker{
 		Controller: c,
 
-		logger:   logger,
-		queue:    workqueue.New(),
+		logger: logger,
+
+		announceLBIP:    opts.LoadBalancerIP,
+		announcePodCIDR: opts.PodCIDR,
+
+		queue: workqueue.New(),
+
 		services: make(map[k8s.ServiceID]*slim_corev1.Service),
 	}
 	go spkr.run()
@@ -68,6 +74,12 @@ func New() *Speaker {
 	return spkr
 }
 
+// Opts represents what the Speaker can announce.
+type Opts struct {
+	LoadBalancerIP bool
+	PodCIDR        bool
+}
+
 // Speaker represents the BGP speaker. It integrates Cilium's K8s events with
 // MetalLB's logic for making BGP announcements. It is responsible for
 // announcing BGP messages containing a loadbalancer IP address to peers.
@@ -75,6 +87,8 @@ type Speaker struct {
 	*metallbspr.Controller
 
 	logger *bgplog.Logger
+
+	announceLBIP, announcePodCIDR bool
 
 	endpointsGetter endpointsGetter
 	// queue holds all the events to process for the Speaker.
@@ -171,11 +185,19 @@ func (s *Speaker) OnUpdateEndpointSliceV1Beta1(eps *slim_discover_v1beta1.Endpoi
 }
 
 // OnAddNode notifies the Speaker of a new node.
-func (s *Speaker) OnAddNode(node *v1.Node) error { return nil }
+func (s *Speaker) OnAddNode(node *v1.Node) error {
+	return s.OnUpdateNode(nil, node)
+}
 
 // OnUpdateNode notifies the Speaker of an update to a node.
 func (s *Speaker) OnUpdateNode(oldNode, newNode *v1.Node) error {
-	s.queue.Add(nil)
+	if newNode.GetName() != nodetypes.GetName() {
+		return nil // We don't care for other nodes.
+	}
+	s.queue.Add(nodeEvent{
+		labels:   nodeLabels(newNode.Labels),
+		podCIDRs: podCIDRs(newNode),
+	})
 	return nil
 }
 
@@ -283,4 +305,26 @@ func convertEndpointSliceV1Beta1(in *slim_discover_v1beta1.EndpointSlice) *metal
 		// "ready" endpoints.
 	}
 	return out
+}
+
+func nodeLabels(l map[string]string) *map[string]string {
+	n := make(map[string]string)
+	for k, v := range l {
+		n[k] = v
+	}
+	return &n
+}
+
+func podCIDRs(node *v1.Node) *[]string {
+	if node == nil {
+		return nil
+	}
+	podCIDRs := make([]string, 0, len(node.Spec.PodCIDRs))
+	if pc := node.Spec.PodCIDR; pc != "" {
+		if len(node.Spec.PodCIDRs) > 0 && pc != node.Spec.PodCIDRs[0] {
+			podCIDRs = append(podCIDRs, pc)
+		}
+	}
+	podCIDRs = append(podCIDRs, node.Spec.PodCIDRs...)
+	return &podCIDRs
 }

@@ -973,6 +973,9 @@ func init() {
 	flags.Bool(option.BGPAnnounceLBIP, false, "Announces service IPs of type LoadBalancer via BGP")
 	option.BindEnv(option.BGPAnnounceLBIP)
 
+	flags.Bool(option.BGPAnnouncePodCIDR, false, "Announces the node's pod CIDR via BGP")
+	option.BindEnv(option.BGPAnnouncePodCIDR)
+
 	flags.String(option.BGPConfigPath, "/var/lib/cilium/bgp/config.yaml", "Path to file containing the BGP configuration")
 	option.BindEnv(option.BGPConfigPath)
 
@@ -1446,6 +1449,13 @@ func initEnv(cmd *cobra.Command) {
 		log.Infof("Auto-set BPF NodePort (%q) because LB IP announcements via BGP depend on it.", option.EnableNodePort)
 	}
 
+	if option.Config.BGPAnnouncePodCIDR &&
+		(option.Config.IPAM != ipamOption.IPAMClusterPool &&
+			option.Config.IPAM != ipamOption.IPAMKubernetes) {
+		log.Fatalf("BGP announcements for pod CIDRs is not supported with IPAM mode %q (only %q and %q are supported)",
+			option.Config.IPAM, ipamOption.IPAMClusterPool, ipamOption.IPAMKubernetes)
+	}
+
 	// NetfilterCompatibleMode should be enabled only on higher versions (5.4 or later) of kernel.
 	// If kernel doesn't support higher instruction complexity limit, then disable NetfilterCompatibleMode.
 	if option.Config.NetfilterCompatibleMode {
@@ -1454,6 +1464,7 @@ func initEnv(cmd *cobra.Command) {
 			log.Warn("netfilter-compatible-mode is enabled only on 5.4 and higher versions of kernel.")
 		}
 	}
+
 }
 
 func (d *Daemon) initKVStore() {
