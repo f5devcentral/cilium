@@ -165,7 +165,7 @@ type Daemon struct {
 
 	redirectPolicyManager *redirectpolicy.Manager
 
-	bgpSpeaker *speaker.Speaker
+	bgpSpeaker *speaker.MetalLBSpeaker
 
 	egressPolicyManager *egresspolicy.Manager
 

@@ -30,7 +30,7 @@ var (
 	emptyAdverts = []*metallbbgp.Advertisement{}
 )
 
-func (s *Speaker) withDraw() error {
+func (s *MetalLBSpeaker) withDraw() error {
 	var wg sync.WaitGroup // waitgroup here since we don't care about errors
 	for _, session := range s.PeerSessions() {
 		wg.Add(1)
@@ -49,7 +49,7 @@ func (s *Speaker) withDraw() error {
 	return nil
 }
 
-func (s *Speaker) announcePodCIDRs(cidrs []string) error {
+func (s *MetalLBSpeaker) announcePodCIDRs(cidrs []string) error {
 	var eg errgroup.Group
 	for _, session := range s.PeerSessions() {
 		func(sess metallbspr.Session) { // Need an outer closure to capture session.
@@ -66,7 +66,7 @@ func (s *Speaker) announcePodCIDRs(cidrs []string) error {
 	return eg.Wait()
 }
 
-func (s *Speaker) announce(session metallbspr.Session, cidrs []string) error {
+func (s *MetalLBSpeaker) announce(session metallbspr.Session, cidrs []string) error {
 	adverts := make([]*metallbbgp.Advertisement, 0, len(cidrs))
 	for _, c := range cidrs {
 		parsed, err := cidr.ParseCIDR(c)
