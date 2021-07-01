@@ -32,7 +32,7 @@ var (
 
 func (s *MetalLBSpeaker) withDraw() error {
 	var wg sync.WaitGroup // waitgroup here since we don't care about errors
-	for _, session := range s.PeerSessions() {
+	for _, session := range s.speaker.PeerSessions() {
 		wg.Add(1)
 		go func(sess metallbspr.Session) { // Need an outer closure to capture session.
 			defer wg.Done()
@@ -51,7 +51,7 @@ func (s *MetalLBSpeaker) withDraw() error {
 
 func (s *MetalLBSpeaker) announcePodCIDRs(cidrs []string) error {
 	var eg errgroup.Group
-	for _, session := range s.PeerSessions() {
+	for _, session := range s.speaker.PeerSessions() {
 		func(sess metallbspr.Session) { // Need an outer closure to capture session.
 			eg.Go(func() error {
 				err := s.announce(sess, cidrs)
