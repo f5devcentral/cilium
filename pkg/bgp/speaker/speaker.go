@@ -8,6 +8,7 @@ package speaker
 import (
 	"context"
 	"errors"
+	"sync/atomic"
 
 	"github.com/cilium/cilium/pkg/k8s"
 	slim_corev1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/api/core/v1"
@@ -85,7 +86,7 @@ type MetalLBSpeaker struct {
 }
 
 func (s *MetalLBSpeaker) shutDown() bool {
-	return s.shutdown > 0
+	return atomic.LoadInt32(&s.shutdown) > 0
 }
 
 // OnUpdateService notifies the Speaker of an update to a service.
