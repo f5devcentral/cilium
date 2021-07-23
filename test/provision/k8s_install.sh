@@ -299,6 +299,20 @@ case $K8S_VERSION in
         CONTROLLER_FEATURE_GATES="EndpointSlice=true"
         API_SERVER_FEATURE_GATES="EndpointSlice=true"
         ;;
+    "1.22")
+        # kubeadm 1.22 requires conntrack to be installed, we can remove this
+        # once we have upgrade the VM image version.
+        sudo apt-get install -y conntrack
+        KUBERNETES_CNI_VERSION="0.8.7"
+        KUBERNETES_CNI_OS="-linux"
+        K8S_FULL_VERSION="1.22.0-rc.0"
+        KUBEADM_OPTIONS="--ignore-preflight-errors=cri,swap"
+        KUBEADM_WORKER_OPTIONS="--discovery-token-unsafe-skip-ca-verification --ignore-preflight-errors=cri,SystemVerification,swap"
+        sudo ln -sf $COREDNS_DEPLOYMENT $DNS_DEPLOYMENT
+        KUBEADM_CONFIG="${KUBEADM_CONFIG_V1BETA2}"
+        CONTROLLER_FEATURE_GATES="EndpointSlice=true"
+        API_SERVER_FEATURE_GATES="EndpointSlice=true"
+        ;;
 esac
 
 if [ "$KUBEPROXY" == "0" ]; then
@@ -308,7 +322,7 @@ fi
 #Install kubernetes
 set +e
 case $K8S_VERSION in
-    "1.16"|"1.17"|"1.18"|"1.19"|"1.20"|"1.21")
+    "1.16"|"1.17"|"1.18"|"1.19"|"1.20"|"1.21"|"1.22")
         install_k8s_using_packages \
             kubernetes-cni=${KUBERNETES_CNI_VERSION}* \
             kubelet=${K8S_FULL_VERSION}* \
