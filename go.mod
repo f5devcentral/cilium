@@ -42,7 +42,7 @@ require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/golang/protobuf v1.5.2
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.5.9
 	github.com/google/gopacket v1.1.19
 	github.com/google/gops v0.3.25
 	github.com/google/renameio v1.0.1
@@ -68,7 +68,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sasha-s/go-deadlock v0.3.1
 	github.com/servak/go-fastping v0.0.0-20160802140958-5718d12e20a0
-	github.com/shirou/gopsutil/v3 v3.22.6
+	github.com/shirou/gopsutil/v3 v3.22.9
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.5.0
