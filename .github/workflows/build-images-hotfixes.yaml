@@ -73,7 +73,7 @@ jobs:
           persist-credentials: false
 
       - name: Release Build ${{ matrix.name }}
-        uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
         id: docker_build_release
         with:
           context: .
