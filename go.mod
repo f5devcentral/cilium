@@ -16,10 +16,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.47.1
 	github.com/aws/smithy-go v1.12.0
 	github.com/blang/semver/v4 v4.0.0
-	github.com/cilium/coverbee v0.2.2
+	github.com/cilium/coverbee v0.3.0
 	github.com/cilium/customvet v0.0.0-20201209211516-9852765c1ac4
 	github.com/cilium/deepequal-gen v0.0.0-20200406125435-ad6a9003139e
-	github.com/cilium/ebpf v0.9.1
+	github.com/cilium/ebpf v0.10.0
 	github.com/cilium/ipam v0.0.0-20211026130907-54a76012817c
 	github.com/cilium/lumberjack/v2 v2.2.2
 	github.com/cilium/proxy v0.0.0-20220525133153-3b70fad0b951
@@ -42,7 +42,7 @@ require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/golang/protobuf v1.5.2
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.5.9
 	github.com/google/gopacket v1.1.19
 	github.com/google/gops v0.3.25
 	github.com/google/renameio v1.0.1
@@ -54,7 +54,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/kevinburke/ssh_config v1.2.0
-	github.com/kr/pretty v0.3.0
+	github.com/kr/pretty v0.3.1
 	github.com/mattn/go-shellwords v1.0.12
 	github.com/miekg/dns v1.1.43
 	github.com/onsi/ginkgo v1.16.5
@@ -88,7 +88,7 @@ require (
 	golang.org/x/exp v0.0.0-20220602145555-4a0574d9293f
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f
+	golang.org/x/sys v0.2.0
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8
 	golang.org/x/tools v0.1.12
 	golang.zx2c4.com/wireguard v0.0.0-20211017052713-f87e87af0d9a
@@ -204,7 +204,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/prometheus/common v0.32.1 // indirect
-	github.com/rogpeppe/go-internal v1.8.0 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
