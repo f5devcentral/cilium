@@ -1,12 +1,13 @@
 package ebpf
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/cilium/ebpf/asm"
 	"github.com/cilium/ebpf/btf"
+	"github.com/cilium/ebpf/internal"
 )
 
 // splitSymbols splits insns into subsections delimited by Symbol Instructions.
@@ -67,7 +68,7 @@ func hasFunctionReferences(insns asm.Instructions) bool {
 //
 // Passing a nil target will relocate against the running kernel. insns are
 // modified in place.
-func applyRelocations(insns asm.Instructions, local, target *btf.Spec) error {
+func applyRelocations(insns asm.Instructions, target *btf.Spec, bo binary.ByteOrder) error {
 	var relos []*btf.CORERelocation
 	var reloInsns []*asm.Instruction
 	iter := insns.Iterate()
@@ -82,12 +83,19 @@ func applyRelocations(insns asm.Instructions, local, target *btf.Spec) error {
 		return nil
 	}
 
-	target, err := maybeLoadKernelBTF(target)
-	if err != nil {
-		return err
+	if bo == nil {
+		bo = internal.NativeEndian
 	}
 
-	fixups, err := btf.CORERelocate(local, target, relos)
+	if target == nil {
+		var err error
+		target, err = btf.LoadKernelSpec()
+		if err != nil {
+			return fmt.Errorf("load kernel spec: %w", err)
+		}
+	}
+
+	fixups, err := btf.CORERelocate(relos, target, bo)
 	if err != nil {
 		return err
 	}
@@ -209,30 +217,4 @@ func fixupProbeReadKernel(ins *asm.Instruction) {
 	case asm.FnProbeReadKernelStr, asm.FnProbeReadUserStr:
 		ins.Constant = int64(asm.FnProbeReadStr)
 	}
-}
-
-var kernelBTF struct {
-	sync.Mutex
-	spec *btf.Spec
-}
-
-// maybeLoadKernelBTF loads the current kernel's BTF if spec is nil, otherwise
-// it returns spec unchanged.
-//
-// The kernel BTF is cached for the lifetime of the process.
-func maybeLoadKernelBTF(spec *btf.Spec) (*btf.Spec, error) {
-	if spec != nil {
-		return spec, nil
-	}
-
-	kernelBTF.Lock()
-	defer kernelBTF.Unlock()
-
-	if kernelBTF.spec != nil {
-		return kernelBTF.spec, nil
-	}
-
-	var err error
-	kernelBTF.spec, err = btf.LoadKernelSpec()
-	return kernelBTF.spec, err
 }
