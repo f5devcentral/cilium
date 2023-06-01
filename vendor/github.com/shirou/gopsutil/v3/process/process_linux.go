@@ -16,11 +16,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tklauser/go-sysconf"
+	"golang.org/x/sys/unix"
+
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/internal/common"
 	"github.com/shirou/gopsutil/v3/net"
-	"github.com/tklauser/go-sysconf"
-	"golang.org/x/sys/unix"
 )
 
 var pageSize = uint64(os.Getpagesize())
@@ -688,9 +689,9 @@ func (p *Process) fillSliceFromCmdlineWithContext(ctx context.Context) ([]string
 	if len(cmdline) == 0 {
 		return nil, nil
 	}
-	if cmdline[len(cmdline)-1] == 0 {
-		cmdline = cmdline[:len(cmdline)-1]
-	}
+
+	cmdline = bytes.TrimRight(cmdline, "\x00")
+
 	parts := bytes.Split(cmdline, []byte{0})
 	var strParts []string
 	for _, p := range parts {
