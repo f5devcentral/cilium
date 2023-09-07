@@ -96,7 +96,7 @@ jobs:
 
       - name: Upload artifact digests
         if: ${{ steps.tag-in-repositories.outputs.exists == 'false' }}
-        uses: actions/upload-artifact@27121b0bdffd731efa15d66772be8dc71245d074
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
         with:
           name: image-digest ${{ matrix.name }}
           path: image-digest
